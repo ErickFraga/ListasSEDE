@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define MAX 100
 
@@ -13,8 +14,8 @@
 /* ========= INFO DA RODOVIA ======= */
 
 
-typedef struct TListaNoDE{
-    char info[MAX];
+typedef struct ListaNoDE{
+    char cidade[MAX];
     struct TListaNoDE *prox;
     struct TListaNoDE *ante;
 }*pListaNoDE;
@@ -42,6 +43,8 @@ typedef struct TListaSE
     int longitude;
 
 }*ListaSE;
+
+// Metodos listaa Simplesmente Encadeada
 
 ListaSE inicListaSE () // INICIA UMA LISTA DO TIPO RODOVIA
 {
@@ -224,16 +227,187 @@ int fimListaSE(ListaSE lstSE)
 
 }
 
+
+// Metodos listaa Duplamente Encadeada
+
+
+ListaDE inicListaDE()
+{
+    ListaDE lstDE = (ListaDE) malloc(sizeof(struct TListaDE)); // alocando memoria
+
+    // Setando campos da ListaDE
+    lstDE->iterador = NULL;
+    lstDE->primeiro = NULL;
+    lstDE->ultimo = NULL;
+    lstDE->longitude = 0;
+
+    return lstDE;
+}
+
+void anxListaDE(ListaDE lstDE, char nomeNoCid[MAX] )
+{
+
+    if(lstDE->longitude>0 && lstDE->iterador == NULL)
+    {
+        printf("\nErro: iterador com valor nulo sendo que lista esta cheia!\n");
+    }
+    else
+    {
+        pListaNoDE novoNoDE = (pListaNoDE) (malloc(sizeof(struct ListaNoDE)));
+
+        strcpy(novoNoDE->cidade, nomeNoCid);
+        if(lstDE->longitude == 0)
+        {
+            lstDE->primeiro = novoNoDE;
+            lstDE->ultimo = novoNoDE;
+            lstDE->iterador = novoNoDE;
+        }
+        else if(lstDE->iterador->prox == NULL)
+        {
+            lstDE->ultimo = novoNoDE;
+            novoNoDE->prox = lstDE->iterador->prox; // prox. do novo no = prox. do iterador
+            lstDE->iterador->prox = novoNoDE; // prox. do iterador = novo no
+            novoNoDE->ante = lstDE->iterador; // ante. do novo no = iterador
+
+            lstDE->longitude ++; // Encrementa a longitude
+        }
+        else
+        {
+            novoNoDE->prox = lstDE->iterador->prox; // prox. do novo no = prox. do iterador
+            lstDE->iterador->prox = novoNoDE; // prox. do iterador = novo no
+            novoNoDE->ante = lstDE->iterador; // ante. do novo no = iterador
+
+            lstDE->iterador = novoNoDE->prox; // iterador avança duas casas para poder o campo ante. do no apos o novoNoDE
+
+            lstDE->iterador->ante = novoNoDE; // campo ante. do no apos o novo no = novo no
+
+            lstDE->iterador = novoNoDE; // Termina com o iterador sobre o novo no
+            lstDE->longitude ++; // Encrementa a longitude
+        }
+    }
+}
+
+void insListaDE(ListaDE lstDE, char nomeNoCid[MAX])
+{
+    if(lstDE->iterador == NULL && lstDE->longitude > 0 )
+    {
+        printf("\nErro: iterador com valor nulo sendo que lista esta cheia!\n");
+    }
+    else
+    {
+        pListaNoDE novoNoDE = (pListaNoDE) (malloc(sizeof(struct ListaNoDE)));
+        strcpy(novoNoDE->cidade, nomeNoCid);
+        if(lstDE->longitude == 0 )
+        {
+            lstDE->iterador = novoNoDE;
+            lstDE->primeiro= novoNoDE;
+            lstDE->ultimo = novoNoDE;
+            lstDE->longitude ++;
+        }
+        else if(lstDE->iterador->ante == NULL)
+        {
+            novoNoDE->prox = lstDE->iterador;
+            lstDE->iterador->ante = novoNoDE;
+
+            lstDE->iterador = lstDE->iterador->ante;
+
+            lstDE->longitude ++;
+        }
+        else
+        {
+            novoNoDE->prox = lstDE->iterador;
+            novoNoDE->ante = lstDE->iterador->ante;
+            lstDE->iterador->ante = novoNoDE;
+
+           lstDE->iterador = novoNoDE->ante;
+           lstDE->iterador->prox = novoNoDE;
+           lstDE->longitude ++;
+        }
+    }
+}
+
+void elimListaDE(ListaDE lstDE)
+{
+    if(lstDE->longitude > 0 && lstDE->iterador != NULL)
+    {
+        pListaNoDE noDesalocar;
+        noDesalocar = lstDE->iterador;
+
+        if(lstDE->iterador->prox != NULL && lstDE->iterador->ante != NULL)
+        {
+            lstDE->iterador = lstDE->iterador->prox;
+            lstDE->iterador->ante = noDesalocar->ante;
+            lstDE->iterador = lstDE->iterador->ante;
+            lstDE->iterador->prox = noDesalocar->prox;
+        }
+        else if(lstDE->iterador->prox == NULL)
+        {
+            lstDE->iterador = lstDE->iterador->ante;
+            lstDE->iterador->prox = NULL;
+        }
+        else if(lstDE->iterador->ante == NULL)
+        {
+            lstDE->iterador = lstDE->iterador->prox;
+            lstDE->iterador->ante = NULL;
+        }
+
+        free(noDesalocar);
+    }
+    else
+    {
+        printf("\nErro: iterador com valor nulo ou lista esta vazia!\n");
+    }
+}
+
+void primListaDE(ListaDE lstDE)
+{
+    lstDE->iterador = lstDE->primeiro;
+}
+
+void ultiListaDE(ListaDE lstDE)
+{
+    lstDE->iterador = lstDE->ultimo;
+}
+
+void segProxListaDE(ListaDE lstDE, int sentido)
+{
+    if(sentido)
+    {
+        lstDE->iterador = lstDE->iterador->prox;
+    }
+    else
+    {
+        lstDE->iterador = lstDE->iterador->ante;
+    }
+
+}
+
+void posListaDE(ListaDE lstDE, int pos)
+{
+    if(pos > 0 && pos <= lstDE->longitude)
+    {
+        pListaNoDE p = (pListaNoDE) malloc(sizeof(struct ListaNoDE));
+        int i;
+        for(i=1, p = lstDE->primeiro; i<6; p = p->prox){}
+        lstDE->iterador = p;
+    }
+    else
+    {
+        printf("\nErro: posicao(pos) invalida!\n");
+    }
+}
+
+
 int main()
 {
-    printf("Hyello Word !!!");
-    ListaSE lst = inicListaSE();
+    ListaSE Rodovias = inicListaSE();
+    ListaDE Cidades1 = inicListaDE();
+    anxListaDE(Cidades1, "Cariacica");
+    anxListaSE(Rodovias, "BR-101");
 
-/*
-    printf("%i", lst->iterador->info );
-    insListaSE(lst, 24);
-    printf("\n%i", lst->iterador->info );
-    */
-    printf("\n%i", lst->iterador->info);
+    anxListaDE(Rodovias->iterador->info->CidadesED, "Cariacia");
+    printf("Rodovia : %s", Rodovias->iterador->info);
+    printf("\n\tCidade : %s", Rodovias->iterador->info->CidadesED->iterador);
+
     return 0;
 }
