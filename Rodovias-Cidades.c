@@ -16,8 +16,8 @@
 
 typedef struct ListaNoDE{
     char cidade[MAX];
-    struct TListaNoDE *prox;
-    struct TListaNoDE *ante;
+    struct ListaNoDE *prox;
+    struct ListaNoDE *ante;
 }*pListaNoDE;
 
 typedef struct TListaDE{
@@ -369,7 +369,7 @@ void ultiListaDE(ListaDE lstDE)
     lstDE->iterador = lstDE->ultimo;
 }
 
-void segProxListaDE(ListaDE lstDE, int sentido)
+void segListaDE(ListaDE lstDE, int sentido)
 {
     if(sentido)
     {
@@ -396,6 +396,53 @@ void posListaDE(ListaDE lstDE, int pos)
         printf("\nErro: posicao(pos) invalida!\n");
     }
 }
+
+char infoListaDE(ListaDE lstDE)
+{
+    if(lstDE->iterador == NULL)
+    {
+        printf("\n erro: iterador indefinido \n");
+        return NULL;
+    }
+    else
+        return lstDE->iterador->cidade;
+}
+
+ int LongListaDE(ListaDE lstDE)
+ {
+     return lstDE->longitude;
+ }
+
+int fimListaDE(ListaDE lstDE)
+{
+
+    return (lstDE->iterador == NULL);
+
+}
+
+
+ListaDE rodoviasCidade(ListaSE lstRodovias, char * cidade){
+
+    ListaDE rodCortamCidade = inicListaDE();
+
+    InfoRodovia rodoviaIterador;
+
+    for(primListaSE(lstRodovias); !fimListaSE(lstRodovias); segListaSE(lstRodovias)){
+
+        rodoviaIterador = infoListaSE(lstRodovias);
+
+
+
+        for(primListaDE(rodoviaIterador.CidadesED);!fimListaDE(rodoviaIterador.CidadesED); segListaDE(rodoviaIterador.CidadesED, 1)){
+            if(strcmp(infoListaDE(rodoviaIterador.CidadesED), cidade) == 0){
+                anxListaDE(rodCortamCidade ,infoListaDE(rodoviaIterador.CidadesED));
+            }
+        }
+    }
+
+        return rodCortamCidade;
+}
+
 
 
 int main()
